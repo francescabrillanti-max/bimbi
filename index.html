@@ -85,14 +85,13 @@ const qx = qc.getContext('2d');
 const b = [322.59,333.79,349.97,359.93,374.86,386.06,403.48,413.44,427.13,438.33,454.51,464.46,476.91,488.11,505.53,515.49,529.18,540.38,556.55,566.51,578.95,593.89,605.09,622.51,632.47,646.16,657.36,673.54,683.49,695.94,707.14,724.56,734.51,749.45];
 const ws = ['4.98','9.96','3.73','8.71','4.98','11.2','3.73','7.47','4.98','9.96','3.73','6.22','4.98','11.2','3.73','7.47','4.98','9.96','3.73','6.22','8.71','4.98','11.2','3.73','7.47','4.98','9.96','3.73','6.22','4.98','11.2','3.73','8.71','4.98'];
 const x0 = 322.59, x1 = 749.45, xr = x1 - x0, y0 = 496.63, y1 = 695.75, yr = y1 - y0;
-const p = 40, zw = 512 - 2 * p, zh = zw;
-function mapX(x) { return p + (x - x0) / xr * zw; }
-function mapY(y) { return p + (y - y0) / yr * zh; }
+const pad = 40, zw = 512 - 2 * pad;
+function mapX(x) { return pad + (x - x0) / xr * zw; }
+function mapY(y) { return pad + (y - y0) / yr * zw; }
 function mapW(s) { return parseFloat(s) / xr * zw; }
-// Fill with transparent background, draw QR bars
 ws.forEach(function(s, i) {
   qx.fillStyle = 'rgba(255,255,255,1)';
-  qx.fillRect(mapX(b[i]), mapY(y0), Math.max(1, mapW(s)), zh);
+  qx.fillRect(mapX(b[i]), mapY(y0), Math.max(1, mapW(s)), zw);
 });
 qx.fillStyle = 'rgba(255,215,0,0.8)';
 qx.fillRect(mapX(303.92), mapY(589.97), mapW('485.35'), mapW('3.73'));
@@ -100,13 +99,13 @@ qx.fillRect(mapX(303.92), mapY(589.97), mapW('485.35'), mapW('3.73'));
 const qrTex = new THREE.CanvasTexture(qc);
 qrTex.transparent = true;
 
-// --- QR CircleGeometry on front of balloon (child of sphere) ---
+// --- QR CircleGeometry ABOVE the front surface of balloon (child of sphere) ---
 const qr = new THREE.Mesh(
-  new THREE.CircleGeometry(RX * 0.75, 48),
+  new THREE.CircleGeometry(RX * 0.85, 48),
   new THREE.MeshBasicMaterial({ map: qrTex, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide })
 );
-qr.position.set(0, 0, RX);
-qr.scale.y = RY / RX;
+qr.position.set(0, 0, RX + 12);
+qr.scale.y = RX / RY;
 sphere.add(qr);
 
 // --- Knot ---
@@ -168,3 +167,4 @@ animate();
 </script>
 </body>
 </html>
+
