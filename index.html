@@ -114,10 +114,11 @@ q.fillRect(qx(303.92), qy(589.97), qw(485.35), qh(3.73));
 const qrTexture = new THREE.CanvasTexture(qrCanvas);
 qrTexture.transparent = true;
 const qrPlane = new THREE.Mesh(
-  new THREE.PlaneGeometry(RX * 1.6, RY * 1.1),
+  new THREE.CircleGeometry(RX * 1.05, 48),
   new THREE.MeshBasicMaterial({ map: qrTexture, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide })
 );
-qrPlane.position.set(0, CY, RX * 0.5);
+qrPlane.position.set(0, CY, RX * 0.95);
+qrPlane.scale.y = RY / RX;
 group.add(qrPlane);
 
 group.position.y = -1500;
@@ -136,15 +137,14 @@ function animate(time) {
   }
 
   if (phase === 'spin') {
-    const p = Math.min(t / 1.5, 1);
+    const p = Math.min(t / 2.0, 1);
     const e = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
     sphere.rotation.y = e * Math.PI * 2;
     hl.rotation.y = e * Math.PI * 2;
-    if (p >= 1) { phase = 'qr'; phaseStart = time; }
-  }
-
-  if (phase === 'qr') {
-    qrPlane.material.opacity = Math.min(t / 0.6, 1);
+    // QR code si rivela durante la rotazione (inizia a 30%, completo a 100%)
+    const qrP = Math.max(0, Math.min(1, (p - 0.3) / 0.7));
+    qrPlane.material.opacity = qrP < 0.5 ? 2 * qrP * qrP : -1 + (4 - 2 * qrP) * qrP;
+    if (p >= 1) { phase = 'done'; phaseStart = time; }
   }
 
   renderer.render(scene, camera);
@@ -153,6 +153,9 @@ animate();
 </script>
 </body>
 </html>
+
+
+
 
 
 
