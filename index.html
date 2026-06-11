@@ -19,13 +19,14 @@
 </head>
 <body>
 <script>
+(function() {
 const W = 1080, H = 1920;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xf2e6d3);
 
-const fov = 40;
-const camDist = (H / 2) / Math.tan(fov / 2 * Math.PI / 180);
+const fov = 40, ch = H / 2;
+const camDist = ch / Math.tan(fov / 2 * Math.PI / 180);
 const camera = new THREE.PerspectiveCamera(fov, W / H, 1, 10000);
 camera.position.set(0, 60, camDist);
 camera.lookAt(0, 60, 0);
@@ -55,35 +56,26 @@ const rim = new THREE.DirectionalLight(0xffffff, 0.3);
 rim.position.set(0, -500, -1000);
 scene.add(rim);
 
-const group = new THREE.Group();
-scene.add(group);
+// Fly group (moves up)
+const fly = new THREE.Group();
+scene.add(fly);
+
+// Spin group (rotates around Y)
+const spin = new THREE.Group();
+fly.add(spin);
 
 const CY = 960 - 592.46, RX = 242.67, RY = 267.56;
-
-// --- Balloon texture with subtle gradient for rotation visibility ---
-const tc = document.createElement('canvas');
-tc.width = 512;
-tc.height = 512;
-const ctx = tc.getContext('2d');
-const grad = ctx.createLinearGradient(0, 0, 512, 0);
-grad.addColorStop(0, '#cc302f');
-grad.addColorStop(0.3, '#e24b4a');
-grad.addColorStop(0.7, '#e24b4a');
-grad.addColorStop(1, '#cc302f');
-ctx.fillStyle = grad;
-ctx.fillRect(0, 0, 512, 512);
-const tex = new THREE.CanvasTexture(tc);
 
 // --- Balloon sphere ---
 const sphere = new THREE.Mesh(
   new THREE.SphereGeometry(RX, 48, 48),
-  new THREE.MeshPhongMaterial({ map: tex, specular: 0x442222, shininess: 35, emissive: 0x331111, emissiveIntensity: 0.06 })
+  new THREE.MeshPhongMaterial({ color: 0xe24b4a, specular: 0x442222, shininess: 35, emissive: 0x331111, emissiveIntensity: 0.06 })
 );
 sphere.scale.y = RY / RX;
 sphere.position.set(0, CY, 0);
-group.add(sphere);
+spin.add(sphere);
 
-// --- Highlight as child of sphere ---
+// --- Highlight ---
 const hl = new THREE.Mesh(
   new THREE.SphereGeometry(80, 24, 24),
   new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.35, emissive: 0xffffff, emissiveIntensity: 0.2 })
@@ -91,7 +83,31 @@ const hl = new THREE.Mesh(
 hl.position.set(476.91 - 540, 960 - 505.34 - CY, RX);
 sphere.add(hl);
 
-// --- QR texture (bars only, transparent background) ---
+// --- Knot ---
+const knot = new THREE.Mesh(
+  new THREE.SphereGeometry(10, 16, 16),
+  new THREE.MeshPhongMaterial({ color: 0xc43030, shininess: 20 })
+);
+knot.position.set(0, CY - RY - 5, 0);
+spin.add(knot);
+
+// --- String (in spin group - swings with rotation) ---
+const sY1 = 960 - 863.75, sY2 = 960 - 1069.5;
+const string = new THREE.Mesh(
+  new THREE.TubeGeometry(
+    new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, sY1, 3),
+      new THREE.Vector3(-2, (sY1+sY2)*0.75, 8),
+      new THREE.Vector3(-5, (sY1+sY2)*0.5, 12),
+      new THREE.Vector3(-7, (sY1+sY2)*0.25, 10),
+      new THREE.Vector3(-8, sY2, 5),
+    ]), 32, 1.2, 6, false
+  ),
+  new THREE.MeshBasicMaterial({ color: 0x1a1a1a, transparent: true, opacity: 0.5 })
+);
+spin.add(string);
+
+// --- QR texture ---
 const qc = document.createElement('canvas');
 qc.width = 512;
 qc.height = 512;
@@ -110,7 +126,7 @@ qx.fillRect(pd + (303.92 - x0) / xr * zw, pd + (589.97 - y0) / yr * zw, parseFlo
 const qrTex = new THREE.CanvasTexture(qc);
 qrTex.transparent = true;
 
-// --- QR CircleGeometry above front surface of balloon ---
+// --- QR CircleGeometry ---
 const qr = new THREE.Mesh(
   new THREE.CircleGeometry(RX * 0.85, 48),
   new THREE.MeshBasicMaterial({ map: qrTex, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide })
@@ -119,33 +135,11 @@ qr.position.set(0, 0, RX + 12);
 qr.scale.y = RX / RY;
 sphere.add(qr);
 
-// --- Knot ---
-const knot = new THREE.Mesh(
-  new THREE.SphereGeometry(10, 16, 16),
-  new THREE.MeshPhongMaterial({ color: 0xc43030, shininess: 20 })
-);
-knot.position.set(0, CY - RY - 5, 0);
-group.add(knot);
-
-// --- String ---
-const sY1 = 960 - 863.75, sY2 = 960 - 1069.5;
-const string = new THREE.Mesh(
-  new THREE.TubeGeometry(
-    new THREE.CatmullRomCurve3([
-      new THREE.Vector3(0, sY1, 3),
-      new THREE.Vector3(-2, (sY1+sY2)*0.75, 8),
-      new THREE.Vector3(-5, (sY1+sY2)*0.5, 12),
-      new THREE.Vector3(-7, (sY1+sY2)*0.25, 10),
-      new THREE.Vector3(-8, sY2, 5),
-    ]), 32, 1.2, 6, false
-  ),
-  new THREE.MeshBasicMaterial({ color: 0x1a1a1a, transparent: true, opacity: 0.5 })
-);
-group.add(string);
-
-group.position.y = -1500;
+// --- Start position below screen ---
+fly.position.y = -1500;
 
 let phase = 'fly', phaseStart = performance.now();
+const DUR = [3, 2, 1];
 
 function animate(time) {
   requestAnimationFrame(animate);
@@ -153,20 +147,20 @@ function animate(time) {
   const t = (time - phaseStart) / 1000;
 
   if (phase === 'fly') {
-    const p = Math.min(t / 3, 1);
-    group.position.y = -1500 * (1 - p) * (1 - p) * (1 - p);
+    const p = Math.min(t / DUR[0], 1);
+    fly.position.y = -1500 * (1 - p) * (1 - p) * (1 - p);
     if (p >= 1) { phase = 'spin'; phaseStart = time; }
   }
 
   if (phase === 'spin') {
-    const p = Math.min(t / 2.0, 1);
+    const p = Math.min(t / DUR[1], 1);
     const e = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
-    sphere.rotation.y = e * Math.PI * 2;
+    spin.rotation.y = e * Math.PI * 2;
     if (p >= 1) { phase = 'reveal'; phaseStart = time; }
   }
 
   if (phase === 'reveal') {
-    const p = Math.min(t / 1.0, 1);
+    const p = Math.min(t / DUR[2], 1);
     const o = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
     qr.material.opacity = o;
     if (p >= 1) { phase = 'done'; phaseStart = time; }
@@ -175,6 +169,7 @@ function animate(time) {
   renderer.render(scene, camera);
 }
 animate();
+})();
 </script>
 </body>
 </html>
