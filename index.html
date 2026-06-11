@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8">
@@ -14,29 +14,24 @@
     align-items: center;
     height: 100vh;
   }
-  canvas { display: block; }
+  canvas { display: block; height: 100vh; width: auto; }
 </style>
 </head>
 <body>
-
 <script>
-// Poster dimensions
-const W = 1080;
-const H = 1920;
+const W = 1080, H = 1920;
 
-// Scene
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xf2e6d3);
 
-// Camera (wide FOV for less perspective distortion)
-const camera = new THREE.PerspectiveCamera(30, W / H, 1, 5000);
-camera.position.set(0, 0, 2200);
-camera.lookAt(0, -200, 0);
+const fov = 40;
+const camDist = (H / 2) / Math.tan(fov / 2 * Math.PI / 180);
+const camera = new THREE.PerspectiveCamera(fov, W / H, 1, 10000);
+camera.position.set(0, 60, camDist);
+camera.lookAt(0, 60, 0);
 
-// Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
 function resize() {
@@ -49,140 +44,107 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// Lighting
-scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
-keyLight.position.set(400, 600, 1200);
-scene.add(keyLight);
-const fillLight = new THREE.DirectionalLight(0xffcccc, 0.4);
-fillLight.position.set(-400, 200, 800);
-scene.add(fillLight);
-const rimLight = new THREE.DirectionalLight(0xffffff, 0.3);
-rimLight.position.set(0, -500, -800);
-scene.add(rimLight);
+scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+const key = new THREE.DirectionalLight(0xffffff, 1.0);
+key.position.set(400, 800, 1500);
+scene.add(key);
+const fill = new THREE.DirectionalLight(0xffcccc, 0.4);
+fill.position.set(-500, 200, 1000);
+scene.add(fill);
+const rim = new THREE.DirectionalLight(0xffffff, 0.3);
+rim.position.set(0, -500, -1000);
+scene.add(rim);
 
-// Balloon group (for fly-in animation)
 const group = new THREE.Group();
 scene.add(group);
 
-// Main balloon sphere (slightly elongated to match SVG's ry > rx)
-const sphereGeo = new THREE.SphereGeometry(252, 48, 48);
-const sphereMat = new THREE.MeshPhongMaterial({
-  color: 0xe24b4a,
-  specular: 0x553333,
-  shininess: 40,
-  emissive: 0x441111,
-  emissiveIntensity: 0.08,
-});
-const sphere = new THREE.Mesh(sphereGeo, sphereMat);
-sphere.scale.y = 267.56 / 242.67;
-sphere.position.set(0, -367, 0);
+const CY = 960 - 592.46, RX = 242.67, RY = 267.56;
+
+const geo = new THREE.SphereGeometry(RX, 48, 48);
+const mat = new THREE.MeshPhongMaterial({ color: 0xe24b4a, specular: 0x442222, shininess: 35, emissive: 0x331111, emissiveIntensity: 0.06 });
+const sphere = new THREE.Mesh(geo, mat);
+sphere.scale.y = RY / RX;
+sphere.position.set(0, CY, 0);
 group.add(sphere);
 
-// Bottom knot
-const knotGeo = new THREE.SphereGeometry(12, 16, 16);
-const knotMat = new THREE.MeshPhongMaterial({ color: 0xc43030, shininess: 20 });
-const knot = new THREE.Mesh(knotGeo, knotMat);
-knot.position.set(0, -367 - 267, 0);
+const hl = new THREE.Mesh(
+  new THREE.SphereGeometry(50, 24, 24),
+  new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.12, emissive: 0xffffff, emissiveIntensity: 0.08 })
+);
+hl.position.set(476.91 - 540, 960 - 505.34, RX);
+group.add(hl);
+
+const knot = new THREE.Mesh(
+  new THREE.SphereGeometry(10, 16, 16),
+  new THREE.MeshPhongMaterial({ color: 0xc43030, shininess: 20 })
+);
+knot.position.set(0, 960 - 857.53, 0);
 group.add(knot);
 
-// String
-const pts = [
-  new THREE.Vector3(0, -367 - 275, 5),
-  new THREE.Vector3(0, -367 - 400, 20),
-  new THREE.Vector3(-3, -367 - 600, 40),
-  new THREE.Vector3(-6, -367 - 800, 60),
-  new THREE.Vector3(-8, -367 - 1000, 80),
-];
-const curve = new THREE.CatmullRomCurve3(pts);
-const tubeGeo = new THREE.TubeGeometry(curve, 32, 1.5, 8, false);
-const tubeMat = new THREE.MeshBasicMaterial({ color: 0x1a1a1a, transparent: true, opacity: 0.5 });
-const tube = new THREE.Mesh(tubeGeo, tubeMat);
-group.add(tube);
+const sY1 = 960 - 863.75, sY2 = 960 - 1069.5;
+const curve = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(0, sY1, 3),
+  new THREE.Vector3(-2, (sY1+sY2)*0.75, 8),
+  new THREE.Vector3(-5, (sY1+sY2)*0.5, 12),
+  new THREE.Vector3(-7, (sY1+sY2)*0.25, 10),
+  new THREE.Vector3(-8, sY2, 5),
+]);
+const string = new THREE.Mesh(
+  new THREE.TubeGeometry(curve, 32, 1.2, 6, false),
+  new THREE.MeshBasicMaterial({ color: 0x1a1a1a, transparent: true, opacity: 0.5 })
+);
+group.add(string);
 
-// White highlight
-const hlGeo = new THREE.SphereGeometry(55, 24, 24);
-const hlMat = new THREE.MeshPhongMaterial({
-  color: 0xffffff,
-  transparent: true,
-  opacity: 0.12,
-  emissive: 0xffffff,
-  emissiveIntensity: 0.1,
-});
-const highlight = new THREE.Mesh(hlGeo, hlMat);
-highlight.position.set(-62, -367 - 87, 252);
-group.add(highlight);
-
-// QR code texture (canvas)
 const qrCanvas = document.createElement('canvas');
-qrCanvas.width = 400;
-qrCanvas.height = 400;
-const qrCtx = qrCanvas.getContext('2d');
-qrCtx.fillStyle = '#f2e6d3';
-qrCtx.fillRect(0, 0, 400, 400);
-
+qrCanvas.width = 800;
+qrCanvas.height = 800;
+const q = qrCanvas.getContext('2d');
+q.clearRect(0, 0, 800, 800);
+function qx(x) { return (x - 300) / 500 * 800; }
+function qy(y) { return (y - 300) / 700 * 800; }
+function qw(w) { return w / 500 * 800; }
+function qh(h) { return h / 700 * 800; }
 const bars = [322.59, 333.79, 349.97, 359.93, 374.86, 386.06, 403.48, 413.44, 427.13, 438.33, 454.51, 464.46, 476.91, 488.11, 505.53, 515.49, 529.18, 540.38, 556.55, 566.51, 578.95, 593.89, 605.09, 622.51, 632.47, 646.16, 657.36, 673.54, 683.49, 695.94, 707.14, 724.56, 734.51, 749.45];
-const scale_f = 400 / 790;
-const yOff = (496.63 - 300) * scale_f;
-const hBar = 199.12 * scale_f;
-qrCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-bars.forEach(x => qrCtx.fillRect((x - 300) * scale_f, yOff, Math.max(1, 4.98 * scale_f), hBar));
-qrCtx.fillStyle = 'rgba(255, 215, 0, 0.6)';
-qrCtx.fillRect((303.92 - 300) * scale_f, (589.97 - 300) * scale_f, 485.35 * scale_f, 3.73 * scale_f);
+q.fillStyle = 'rgba(255,255,255,0.9)';
+const ws = ["4.98","9.96","3.73","8.71","4.98","11.2","3.73","7.47","4.98","9.96","3.73","6.22","4.98","11.2","3.73","7.47","4.98","9.96","3.73","6.22","8.71","4.98","11.2","3.73","7.47","4.98","9.96","3.73","6.22","4.98","11.2","3.73","8.71","4.98"];
+ws.forEach((w,i) => q.fillRect(qx(bars[i]), qy(496.63), Math.max(1, qw(parseFloat(w))), qh(199.12)));
+q.fillStyle = 'rgba(255,215,0,0.6)';
+q.fillRect(qx(303.92), qy(589.97), qw(485.35), qh(3.73));
 
 const qrTexture = new THREE.CanvasTexture(qrCanvas);
 qrTexture.transparent = true;
-
-// QR plane (positioned just in front of the balloon)
-const qrGeo = new THREE.PlaneGeometry(400, 400);
-const qrMat = new THREE.MeshBasicMaterial({
-  map: qrTexture,
-  transparent: true,
-  opacity: 0,
-  depthWrite: false,
-  side: THREE.DoubleSide,
-});
-const qrPlane = new THREE.Mesh(qrGeo, qrMat);
-qrPlane.position.set(0, -367, 260);
+const qrPlane = new THREE.Mesh(
+  new THREE.PlaneGeometry(RX * 1.6, RY * 1.1),
+  new THREE.MeshBasicMaterial({ map: qrTexture, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide })
+);
+qrPlane.position.set(0, CY, RX * 0.5);
 group.add(qrPlane);
 
-// Start position: below poster
-group.position.y = 1500;
+group.position.y = -1500;
 
-// Animation timeline
-let phase = 'fly'; // fly | spin | qr
-let phaseStart = performance.now();
-const flyDuration = 3000;
-const spinDuration = 1500;
-const qrDuration = 600;
+let phase = 'fly', phaseStart = performance.now();
+const DUR_FLY = 3000, DUR_SPIN = 1500, DUR_QR = 600;
 
 function animate(time) {
   requestAnimationFrame(animate);
-  const elapsed = (time - phaseStart) / 1000;
+  const t = (time - phaseStart) / 1000;
 
   if (phase === 'fly') {
-    const t = Math.min(elapsed / 3, 1);
-    const ease = t < 1 ? 1 - Math.pow(1 - t, 3) : 1; // easeOutCubic
-    group.position.y = 1500 * (1 - ease);
-    if (t >= 1) { phase = 'spin'; phaseStart = time; }
+    const p = Math.min(t / 3, 1);
+    group.position.y = -1500 * (1 - Math.pow(1 - p, 3));
+    if (p >= 1) { phase = 'spin'; phaseStart = time; }
   }
 
   if (phase === 'spin') {
-    const t = Math.min(elapsed / 1.5, 1);
-    const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; // easeInOutSine
-    sphere.rotation.y = ease * Math.PI * 2;
-    highlight.rotation.y = ease * Math.PI * 2;
-    if (t >= 1) { phase = 'qr'; phaseStart = time; }
+    const p = Math.min(t / 1.5, 1);
+    const e = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+    sphere.rotation.y = e * Math.PI * 2;
+    hl.rotation.y = e * Math.PI * 2;
+    if (p >= 1) { phase = 'qr'; phaseStart = time; }
   }
 
   if (phase === 'qr') {
-    const t = Math.min(elapsed / 0.6, 1);
-    qrMat.opacity = t;
-  }
-
-  // Subtle idle float
-  if (phase !== 'fly') {
-    group.position.y += Math.sin(time * 0.001) * 0.05;
+    qrPlane.material.opacity = Math.min(t / 0.6, 1);
   }
 
   renderer.render(scene, camera);
@@ -191,3 +153,5 @@ animate();
 </script>
 </body>
 </html>
+
+
