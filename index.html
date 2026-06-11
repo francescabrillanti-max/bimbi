@@ -58,6 +58,9 @@ scene.add(rim);
 const group = new THREE.Group();
 scene.add(group);
 
+const rotateGroup = new THREE.Group();
+group.add(rotateGroup);
+
 const CY = 960 - 592.46, RX = 242.67, RY = 267.56;
 
 const geo = new THREE.SphereGeometry(RX, 48, 48);
@@ -65,20 +68,20 @@ const mat = new THREE.MeshPhongMaterial({ color: 0xe24b4a, specular: 0x442222, s
 const sphere = new THREE.Mesh(geo, mat);
 sphere.scale.y = RY / RX;
 sphere.position.set(0, CY, 0);
-group.add(sphere);
+rotateGroup.add(sphere);
 
 const hl = new THREE.Mesh(
   new THREE.SphereGeometry(50, 24, 24),
-  new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.12, emissive: 0xffffff, emissiveIntensity: 0.08 })
+  new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.15, emissive: 0xffffff, emissiveIntensity: 0.08 })
 );
 hl.position.set(476.91 - 540, 960 - 505.34, RX);
-group.add(hl);
+rotateGroup.add(hl);
 
 const knot = new THREE.Mesh(
   new THREE.SphereGeometry(10, 16, 16),
   new THREE.MeshPhongMaterial({ color: 0xc43030, shininess: 20 })
 );
-knot.position.set(0, 960 - 857.53, 0);
+knot.position.set(0, CY - RY - 5, 0);
 group.add(knot);
 
 const sY1 = 960 - 863.75, sY2 = 960 - 1069.5;
@@ -99,7 +102,8 @@ const qrCanvas = document.createElement('canvas');
 qrCanvas.width = 800;
 qrCanvas.height = 800;
 const q = qrCanvas.getContext('2d');
-q.clearRect(0, 0, 800, 800);
+q.fillStyle = '#e24b4a';
+q.fillRect(0, 0, 800, 800);
 function qx(x) { return (x - 300) / 500 * 800; }
 function qy(y) { return (y - 300) / 700 * 800; }
 function qw(w) { return w / 500 * 800; }
@@ -112,7 +116,6 @@ q.fillStyle = 'rgba(255,215,0,0.6)';
 q.fillRect(qx(303.92), qy(589.97), qw(485.35), qh(3.73));
 
 const qrTexture = new THREE.CanvasTexture(qrCanvas);
-qrTexture.transparent = true;
 const qrPlane = new THREE.Mesh(
   new THREE.CircleGeometry(RX * 1.05, 48),
   new THREE.MeshBasicMaterial({ map: qrTexture, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide })
@@ -124,24 +127,22 @@ group.add(qrPlane);
 group.position.y = -1500;
 
 let phase = 'fly', phaseStart = performance.now();
-const DUR_FLY = 3000, DUR_SPIN = 1500, DUR_QR = 600;
 
 function animate(time) {
   requestAnimationFrame(animate);
+  if (time === undefined) time = performance.now();
   const t = (time - phaseStart) / 1000;
 
   if (phase === 'fly') {
     const p = Math.min(t / 3, 1);
-    group.position.y = -1500 * Math.pow(1 - p, 3);
+    group.position.y = -1500 * (1 - p) * (1 - p) * (1 - p);
     if (p >= 1) { phase = 'spin'; phaseStart = time; }
   }
 
   if (phase === 'spin') {
     const p = Math.min(t / 2.0, 1);
     const e = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
-    sphere.rotation.y = e * Math.PI * 2;
-    hl.rotation.y = e * Math.PI * 2;
-    // QR code si rivela durante la rotazione (inizia a 30%, completo a 100%)
+    rotateGroup.rotation.y = e * Math.PI * 2;
     const qrP = Math.max(0, Math.min(1, (p - 0.3) / 0.7));
     qrPlane.material.opacity = qrP < 0.5 ? 2 * qrP * qrP : -1 + (4 - 2 * qrP) * qrP;
     if (p >= 1) { phase = 'done'; phaseStart = time; }
@@ -153,9 +154,3 @@ animate();
 </script>
 </body>
 </html>
-
-
-
-
-
-
