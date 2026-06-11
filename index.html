@@ -50,7 +50,8 @@
     </clipPath>
   </defs>
   <rect class="cls-4" width="1080" height="1920"/>
-  <g id="balloon-wrapper" style="transform-origin: 539px 592px; transform-box: view-box;">
+  <g id="balloon-container"></g>
+  <g id="balloon-tpl" style="transform-origin: 539px 592px; transform-box: view-box; display: none;">
     <g id="PALLONCINO">
       <path class="cls-1" d="M539.13,863.75c-3.32,91.44-7.05,182.89-11.2,274.33-3.32,68.58-6.22,137.17-8.71,205.75"/>
       <g>
@@ -84,87 +85,120 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const wrapper = document.querySelector('#balloon-wrapper');
-  if (!wrapper) return;
+  var tpl = document.querySelector('#balloon-tpl');
+  var container = document.querySelector('#balloon-container');
+  var poster = document.querySelector('.poster');
+  var ph = poster ? poster.getBoundingClientRect().height : 0;
+  var scale = ph > 0 ? ph / 1920 : window.innerHeight / 1920;
+  var startY = Math.round((window.innerHeight / scale) + 300);
 
-  const poster = document.querySelector('.poster');
-  const ph = poster ? poster.getBoundingClientRect().height : 0;
-  const scale = ph > 0 ? ph / 1920 : window.innerHeight / 1920;
-  const startY = Math.round((window.innerHeight / scale) + 300);
+  var balloonGroups = [];
+
+  for (var i = 0; i < 12; i++) {
+    var x = 40 + Math.random() * 1000;
+    var y = 80 + Math.random() * 1400;
+
+    var group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    group.setAttribute('transform', 'translate(' + x + ', ' + y + ')');
+
+    var clone = tpl.cloneNode(true);
+    clone.style.display = '';
+    clone.removeAttribute('id');
+
+    group.appendChild(clone);
+    container.appendChild(group);
+
+    balloonGroups.push({
+      anim: clone,
+      qr: clone.querySelector('#qrcode-overlay'),
+      bimbo: clone.querySelector('#bimbo-overlay'),
+      x: x,
+      y: y
+    });
+  }
+
+  var animEls = balloonGroups.map(function(b) { return b.anim; });
+  var qrEls = balloonGroups.map(function(b) { return b.qr; });
+  var bimboEls = balloonGroups.map(function(b) { return b.bimbo; });
 
   var rotFrames = [];
-  for (var i = 0; i <= 30; i++) {
-    var s = Math.cos((i / 30) * 2 * Math.PI);
+  for (var j = 0; j <= 30; j++) {
+    var s = Math.cos((j / 30) * 2 * Math.PI);
     if (Math.abs(s) < 0.001) s = 0.001;
     rotFrames.push(s);
   }
 
   anime({
-    targets: wrapper,
-    translateY: [startY, 0],
+    targets: animEls,
+    translateY: function(el, i) {
+      var extra = Math.random() * 200;
+      return [startY + extra, 0];
+    },
     easing: 'easeOutExpo',
     duration: 3200,
-    complete: () => {
-      const qrOverlay = document.querySelector('#qrcode-overlay');
-      const bimboOverlay = document.querySelector('#bimbo-overlay');
-      if (qrOverlay) qrOverlay.style.display = 'block';
-      if (bimboOverlay) bimboOverlay.style.display = 'block';
-
-      const tl = anime.timeline({
-        easing: 'easeInOutQuad'
+    complete: function() {
+      animEls.forEach(function(el) {
+        el.querySelector('#qrcode-overlay').style.display = 'block';
+        el.querySelector('#bimbo-overlay').style.display = 'block';
       });
 
+      var tl = anime.timeline({ easing: 'easeInOutQuad' });
+
       tl.add({
-        targets: wrapper,
+        targets: animEls,
         scaleX: rotFrames,
         duration: 1500,
         easing: 'linear',
         transformOrigin: '539px 592px'
       })
       .add({
-        targets: '#qrcode-overlay',
+        targets: qrEls,
         opacity: [0, 1],
         duration: 500
       }, '-=500')
       .add({
-        targets: wrapper,
+        targets: animEls,
         opacity: 1,
         duration: 800
       })
       .add({
-        targets: wrapper,
+        targets: animEls,
         scaleX: rotFrames,
         duration: 1500,
         easing: 'linear',
         transformOrigin: '539px 592px'
       })
       .add({
-        targets: '#qrcode-overlay',
+        targets: qrEls,
         opacity: [1, 0],
         duration: 500
       }, '-=500')
       .add({
-        targets: '#bimbo-overlay',
+        targets: bimboEls,
         opacity: [0, 1],
         duration: 500
       }, '-=500')
       .add({
-        targets: wrapper,
+        targets: animEls,
         translateY: [0, -10, 0],
         duration: 2000,
         easing: 'easeInOutSine',
-        complete: explode
+        complete: function() {
+          balloonGroups.forEach(function(b) { explode(b); });
+        }
       });
     }
   });
 });
 
-function explode() {
-  var w = document.querySelector('#balloon-wrapper');
+function explode(balloon) {
+  var animEl = balloon.anim;
   var svg = document.querySelector('.poster');
+  var cx = 539 + balloon.x;
+  var cy = 592 + balloon.y;
 
   anime({
-    targets: w,
+    targets: animEl,
     scale: [1, 1.2, 0],
     opacity: [1, 1, 0],
     duration: 250,
@@ -180,15 +214,15 @@ function explode() {
       var angle = Math.random() * 2 * Math.PI;
       var dist = 50 + Math.random() * 150;
       var size = 5 + Math.random() * 16;
-      frag.setAttribute('cx', 539);
-      frag.setAttribute('cy', 592);
+      frag.setAttribute('cx', cx);
+      frag.setAttribute('cy', cy);
       frag.setAttribute('r', size);
       frag.setAttribute('fill', colors[i % colors.length]);
       svg.appendChild(frag);
       anime({
         targets: frag,
-        cx: 539 + Math.cos(angle) * dist,
-        cy: 592 + Math.sin(angle) * dist,
+        cx: cx + Math.cos(angle) * dist,
+        cy: cy + Math.sin(angle) * dist,
         opacity: [1, 0],
         duration: 400 + Math.random() * 300,
         easing: 'easeOutQuad',
