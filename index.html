@@ -60,39 +60,16 @@ scene.add(group);
 
 const CY = 960 - 592.46, RX = 242.67, RY = 267.56;
 
-// --- Balloon texture with QR code ---
-const tc = document.createElement('canvas');
-tc.width = 1024;
-tc.height = 1024;
-const cx = tc.getContext('2d');
-let qa = 0;
-function redraw() {
-  cx.fillStyle = '#e24b4a';
-  cx.fillRect(0, 0, 1024, 1024);
-  if (qa > 0.01) {
-    const b = [322.59,333.79,349.97,359.93,374.86,386.06,403.48,413.44,427.13,438.33,454.51,464.46,476.91,488.11,505.53,515.49,529.18,540.38,556.55,566.51,578.95,593.89,605.09,622.51,632.47,646.16,657.36,673.54,683.49,695.94,707.14,724.56,734.51,749.45];
-    const w = ['4.98','9.96','3.73','8.71','4.98','11.2','3.73','7.47','4.98','9.96','3.73','6.22','4.98','11.2','3.73','7.47','4.98','9.96','3.73','6.22','8.71','4.98','11.2','3.73','7.47','4.98','9.96','3.73','6.22','4.98','11.2','3.73','8.71','4.98'];
-    const x0 = 322.59, x1 = 749.45, xr = x1 - x0, y0 = 496.63, y1 = 695.75;
-    const tx0 = 380, tx1 = 644, tw = tx1 - tx0, ty0 = 380;
-    const a = (qa * 0.9).toFixed(3);
-    cx.fillStyle = 'rgba(255,255,255,' + a + ')';
-    w.forEach(function(s, i) { cx.fillRect(tx0 + (b[i] - x0) / xr * tw, ty0 + (y0 - y0), Math.max(1, parseFloat(s) / xr * tw), tw); });
-    cx.fillStyle = 'rgba(255,215,0,' + (qa * 0.6).toFixed(3) + ')';
-    cx.fillRect(tx0 + (303.92 - x0) / xr * tw, ty0 + (589.97 - y0), parseFloat('485.35') / xr * tw, parseFloat('3.73') / xr * tw);
-  }
-}
-redraw();
-
-const tex = new THREE.CanvasTexture(tc);
+// --- Balloon sphere (red) ---
 const sphere = new THREE.Mesh(
   new THREE.SphereGeometry(RX, 48, 48),
-  new THREE.MeshPhongMaterial({ map: tex, specular: 0x442222, shininess: 35, emissive: 0x331111, emissiveIntensity: 0.06 })
+  new THREE.MeshPhongMaterial({ color: 0xe24b4a, specular: 0x442222, shininess: 35, emissive: 0x331111, emissiveIntensity: 0.06 })
 );
 sphere.scale.y = RY / RX;
 sphere.position.set(0, CY, 0);
 group.add(sphere);
 
-// Highlight as CHILD of sphere so it orbits with rotation
+// --- Highlight (child of sphere, orbits with rotation) ---
 const hl = new THREE.Mesh(
   new THREE.SphereGeometry(70, 24, 24),
   new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.30, emissive: 0xffffff, emissiveIntensity: 0.15 })
@@ -100,6 +77,39 @@ const hl = new THREE.Mesh(
 hl.position.set(476.91 - 540, 960 - 505.34 - CY, RX);
 sphere.add(hl);
 
+// --- QR code texture canvas ---
+const qc = document.createElement('canvas');
+qc.width = 512;
+qc.height = 512;
+const qx = qc.getContext('2d');
+const b = [322.59,333.79,349.97,359.93,374.86,386.06,403.48,413.44,427.13,438.33,454.51,464.46,476.91,488.11,505.53,515.49,529.18,540.38,556.55,566.51,578.95,593.89,605.09,622.51,632.47,646.16,657.36,673.54,683.49,695.94,707.14,724.56,734.51,749.45];
+const ws = ['4.98','9.96','3.73','8.71','4.98','11.2','3.73','7.47','4.98','9.96','3.73','6.22','4.98','11.2','3.73','7.47','4.98','9.96','3.73','6.22','8.71','4.98','11.2','3.73','7.47','4.98','9.96','3.73','6.22','4.98','11.2','3.73','8.71','4.98'];
+const x0 = 322.59, x1 = 749.45, xr = x1 - x0, y0 = 496.63, y1 = 695.75, yr = y1 - y0;
+const p = 40, zw = 512 - 2 * p, zh = zw;
+function mapX(x) { return p + (x - x0) / xr * zw; }
+function mapY(y) { return p + (y - y0) / yr * zh; }
+function mapW(s) { return parseFloat(s) / xr * zw; }
+// Fill with transparent background, draw QR bars
+ws.forEach(function(s, i) {
+  qx.fillStyle = 'rgba(255,255,255,1)';
+  qx.fillRect(mapX(b[i]), mapY(y0), Math.max(1, mapW(s)), zh);
+});
+qx.fillStyle = 'rgba(255,215,0,0.8)';
+qx.fillRect(mapX(303.92), mapY(589.97), mapW('485.35'), mapW('3.73'));
+
+const qrTex = new THREE.CanvasTexture(qc);
+qrTex.transparent = true;
+
+// --- QR CircleGeometry on front of balloon (child of sphere) ---
+const qr = new THREE.Mesh(
+  new THREE.CircleGeometry(RX * 0.75, 48),
+  new THREE.MeshBasicMaterial({ map: qrTex, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide })
+);
+qr.position.set(0, 0, RX);
+qr.scale.y = RY / RX;
+sphere.add(qr);
+
+// --- Knot ---
 const knot = new THREE.Mesh(
   new THREE.SphereGeometry(10, 16, 16),
   new THREE.MeshPhongMaterial({ color: 0xc43030, shininess: 20 })
@@ -107,6 +117,7 @@ const knot = new THREE.Mesh(
 knot.position.set(0, CY - RY - 5, 0);
 group.add(knot);
 
+// --- String ---
 const sY1 = 960 - 863.75, sY2 = 960 - 1069.5;
 const string = new THREE.Mesh(
   new THREE.TubeGeometry(
@@ -146,9 +157,8 @@ function animate(time) {
 
   if (phase === 'reveal') {
     const p = Math.min(t / 1.0, 1);
-    qa = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
-    redraw();
-    tex.needsUpdate = true;
+    const o = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+    qr.material.opacity = o;
     if (p >= 1) { phase = 'done'; phaseStart = time; }
   }
 
