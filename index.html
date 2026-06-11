@@ -9,9 +9,14 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     background: #1a1a1a;
+    min-height: 100vh;
+  }
+  #stage {
+    perspective: 800px;
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100%;
     min-height: 100vh;
   }
   .poster {
@@ -19,12 +24,12 @@
     width: auto;
     max-width: 100vw;
     display: block;
-    perspective: 1000px;
+    transform-style: preserve-3d;
   }
 </style>
 </head>
 <body>
-
+<div id="stage">
 <svg class="poster" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
     <style>
@@ -87,6 +92,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const scale = ph > 0 ? ph / 1920 : window.innerHeight / 1920;
   const startY = Math.round((window.innerHeight / scale) + 300);
 
+  var rotFrames = [];
+  for (var i = 0; i <= 30; i++) {
+    var s = Math.cos((i / 30) * 2 * Math.PI);
+    if (Math.abs(s) < 0.001) s = 0.001;
+    rotFrames.push(s);
+  }
+
   anime({
     targets: wrapper,
     translateY: [startY, 0],
@@ -104,8 +116,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       tl.add({
         targets: wrapper,
-        rotateY: [0, 360],
-        duration: 1500
+        scaleX: rotFrames,
+        duration: 1500,
+        easing: 'linear',
+        transformOrigin: '539px 592px'
       })
       .add({
         targets: '#qrcode-overlay',
@@ -114,8 +128,15 @@ document.addEventListener('DOMContentLoaded', () => {
       }, '-=500')
       .add({
         targets: wrapper,
-        rotateY: '+=360',
-        duration: 1500
+        opacity: 1,
+        duration: 800
+      })
+      .add({
+        targets: wrapper,
+        scaleX: rotFrames,
+        duration: 1500,
+        easing: 'linear',
+        transformOrigin: '539px 592px'
       })
       .add({
         targets: '#qrcode-overlay',
@@ -131,12 +152,53 @@ document.addEventListener('DOMContentLoaded', () => {
         targets: wrapper,
         translateY: [0, -10, 0],
         duration: 2000,
-        loop: true,
-        easing: 'easeInOutSine'
+        easing: 'easeInOutSine',
+        complete: explode
       });
     }
   });
 });
+
+function explode() {
+  var w = document.querySelector('#balloon-wrapper');
+  var svg = document.querySelector('.poster');
+  var colors = ['#c43030', '#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff9f43'];
+
+  anime({
+    targets: w,
+    scale: [1, 3.5],
+    opacity: [1, 0],
+    duration: 400,
+    easing: 'easeOutQuad',
+    transformOrigin: '539px 592px'
+  });
+
+  for (var i = 0; i < 40; i++) {
+    (function() {
+      var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      var angle = Math.random() * 2 * Math.PI;
+      var dist = 80 + Math.random() * 250;
+      var size = 4 + Math.random() * 14;
+      circle.setAttribute('cx', 539);
+      circle.setAttribute('cy', 592);
+      circle.setAttribute('r', size);
+      circle.setAttribute('fill', colors[Math.floor(Math.random() * colors.length)]);
+      svg.appendChild(circle);
+      anime({
+        targets: circle,
+        cx: 539 + Math.cos(angle) * dist,
+        cy: 592 + Math.sin(angle) * dist,
+        opacity: [1, 0],
+        duration: 700 + Math.random() * 500,
+        easing: 'easeOutCubic',
+        complete: function() {
+          if (circle.parentNode) circle.parentNode.removeChild(circle);
+        }
+      });
+    })();
+  }
+}
 </script>
+</div>
 </body>
 </html>
