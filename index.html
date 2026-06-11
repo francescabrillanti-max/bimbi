@@ -36,6 +36,9 @@
       .cls-3 { stroke: #c43030; stroke-width: 3.11px; }
       #PALLONCINO { transform-origin: 539.13px 592.46px; }
     </style>
+    <clipPath id="qr-clip">
+      <ellipse cx="546.6" cy="596.19" rx="242.67" ry="267.56"/>
+    </clipPath>
   </defs>
   <rect class="cls-6" width="1080" height="1920"/>
   <g id="balloon-wrapper">
@@ -48,6 +51,45 @@
         <path class="cls-3" d="M531.66,863.75c-3.32,9.96-1.66,16.59,4.98,19.91,6.64-3.32,9.96-9.96,9.96-19.91"/>
       </g>
     </g>
+    <g id="QRCODE" opacity="0">
+      <g clip-path="url(#qr-clip)">
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="322.59" y="496.63" width="4.98" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="333.79" y="496.63" width="9.96" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="349.97" y="496.63" width="3.73" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="359.93" y="496.63" width="8.71" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="374.86" y="496.63" width="4.98" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="386.06" y="496.63" width="11.2" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="403.48" y="496.63" width="3.73" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="413.44" y="496.63" width="7.47" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="427.13" y="496.63" width="4.98" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="438.33" y="496.63" width="9.96" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="454.51" y="496.63" width="3.73" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="464.46" y="496.63" width="6.22" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="476.91" y="496.63" width="4.98" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="488.11" y="496.63" width="11.2" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="505.53" y="496.63" width="3.73" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="515.49" y="496.63" width="7.47" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="529.18" y="496.63" width="4.98" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="540.38" y="496.63" width="9.96" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="556.55" y="496.63" width="3.73" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="566.51" y="496.63" width="6.22" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="578.95" y="496.63" width="8.71" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="593.89" y="496.63" width="4.98" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="605.09" y="496.63" width="11.2" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="622.51" y="496.63" width="3.73" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="632.47" y="496.63" width="7.47" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="646.16" y="496.63" width="4.98" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="657.36" y="496.63" width="9.96" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="673.54" y="496.63" width="3.73" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="683.49" y="496.63" width="6.22" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="695.94" y="496.63" width="4.98" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="707.14" y="496.63" width="11.2" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="724.56" y="496.63" width="3.73" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="734.51" y="496.63" width="8.71" height="199.12"/>
+        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="749.45" y="496.63" width="4.98" height="199.12"/>
+        <rect style="fill:gold;opacity:.6;isolation:isolate" x="303.92" y="589.97" width="485.35" height="3.73"/>
+      </g>
+    </g>
   </g>
 </svg>
 
@@ -57,19 +99,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const wrapper = document.querySelector('#balloon-wrapper');
   const balloon = document.querySelector('#PALLONCINO');
+  const qrcode = document.querySelector('#QRCODE');
 
   wrapper.setAttribute('transform', 'translate(0, 1500)');
 
+  // 1. Arrivo dal basso
   anime({
     targets: wrapper,
     translateY: { value: [1500, 0], easing: 'easeOutSine', duration: 3000 },
     complete: () => {
+      // 2. Rotazione su se stesso
       anime({
         targets: balloon,
-        rotate: [-3, 3, -3],
-        easing: 'easeInOutSine',
-        duration: 2000,
-        loop: true
+        rotate: { value: [0, 360], easing: 'easeInOutSine', duration: 1500 },
+        complete: () => {
+          // 3. Cross-fade verso QR code
+          anime({
+            targets: balloon,
+            opacity: { value: [1, 0], easing: 'linear', duration: 600 },
+          });
+          anime({
+            targets: qrcode,
+            opacity: { value: [0, 1], easing: 'linear', duration: 600 },
+          });
+        }
       });
     }
   });
