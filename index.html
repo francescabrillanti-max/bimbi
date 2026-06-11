@@ -44,15 +44,16 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+// Lights: key from upper-right (matches reference PNG highlight)
+scene.add(new THREE.AmbientLight(0xffffff, 0.25));
 const key = new THREE.DirectionalLight(0xffffff, 1.0);
-key.position.set(400, 800, 1500);
+key.position.set(600, 800, 1200);
 scene.add(key);
-const fill = new THREE.DirectionalLight(0xffcccc, 0.4);
-fill.position.set(-500, 200, 1000);
+const fill = new THREE.DirectionalLight(0xffbbaa, 0.4);
+fill.position.set(-400, 300, 800);
 scene.add(fill);
-const rim = new THREE.DirectionalLight(0xffffff, 0.3);
-rim.position.set(0, -500, -1000);
+const rim = new THREE.DirectionalLight(0xffffff, 0.25);
+rim.position.set(0, -600, -800);
 scene.add(rim);
 
 const fly = new THREE.Group();
@@ -62,32 +63,66 @@ fly.add(spin);
 
 const CY = 960 - 592.46, RX = 242.67, RY = 267.56;
 
-// Texture con gradiente asimmetrico per rendere visibile la rotazione
+// --- Texture fedele al PNG di riferimento ---
 const cv = document.createElement('canvas');
 cv.width = 256;
 cv.height = 256;
 const cx = cv.getContext('2d');
-for (let x = 0; x < 256; x++) {
-  const t = x / 256;
-  const red = 0xcc + Math.round(0x16 * (0.5 + 0.5 * Math.sin(t * Math.PI * 2 + 0.3)));
-  cx.fillStyle = 'rgb(' + red + ',' + Math.round(red * 0.36) + ',' + Math.round(red * 0.345) + ')';
-  cx.fillRect(x, 0, 1, 256);
+
+// Gradiente verticale: chiaro sopra, scuro sotto (come nel PNG)
+for (let y = 0; y < 256; y++) {
+  const t = y / 256;
+  const shade = Math.round(255 - t * 170); // 255 in alto, 85 in basso
+  const r = Math.min(255, Math.round(shade * 0.95));
+  const g = Math.round(shade * 0.35);
+  const b = Math.round(shade * 0.34);
+  for (let x = 0; x < 256; x++) {
+    cx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+    cx.fillRect(x, y, 1, 1);
+  }
 }
+
+// Highlight (macchia chiara) in alto a destra, come nel PNG
+const hx = Math.round(256 * 0.68), hy = Math.round(256 * 0.18);
+for (let r = 50; r > 0; r -= 4) {
+  const a = Math.round(180 - r * 3);
+  if (a < 0) continue;
+  cx.fillStyle = 'rgba(255,255,255,' + (a / 255).toFixed(3) + ')';
+  cx.beginPath();
+  cx.arc(hx, hy, r, 0, Math.PI * 2);
+  cx.fill();
+}
+
+// Sottile linea verticale (cucitura) per riferimento rotazione
+cx.strokeStyle = 'rgba(0,0,0,0.08)';
+cx.lineWidth = 2;
+cx.beginPath();
+cx.moveTo(40, 0);
+cx.lineTo(40, 256);
+cx.stroke();
+
+// Altra cucitura sul lato opposto
+cx.beginPath();
+cx.moveTo(210, 0);
+cx.lineTo(210, 256);
+cx.stroke();
+
 const tex = new THREE.CanvasTexture(cv);
 
 const sphere = new THREE.Mesh(
   new THREE.SphereGeometry(RX, 48, 48),
-  new THREE.MeshPhongMaterial({ map: tex, specular: 0x442222, shininess: 35, emissive: 0x331111, emissiveIntensity: 0.06 })
+  new THREE.MeshPhongMaterial({ map: tex, specular: 0x442222, shininess: 40, emissive: 0x331111, emissiveIntensity: 0.04 })
 );
 sphere.scale.y = RY / RX;
 sphere.position.set(0, CY, 0);
 spin.add(sphere);
 
+// Highlight come sfera 3D (si muove con la rotazione)
 const hl = new THREE.Mesh(
-  new THREE.SphereGeometry(80, 24, 24),
-  new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.35, emissive: 0xffffff, emissiveIntensity: 0.2 })
+  new THREE.SphereGeometry(70, 24, 24),
+  new THREE.MeshPhongMaterial({ color: 0xffd4d4, transparent: true, opacity: 0.25, emissive: 0xffaaaa, emissiveIntensity: 0.08 })
 );
-hl.position.set(476.91 - 540, 960 - 505.34 - CY, RX);
+hl.position.set(86.5, -172.5, RX);
 sphere.add(hl);
 
 const knot = new THREE.Mesh(
