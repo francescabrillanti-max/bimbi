@@ -34,6 +34,7 @@
       .cls-2 { fill: #fff; opacity: .12; }
       .cls-6 { fill: #f2e6d3; }
       .cls-3 { stroke: #c43030; stroke-width: 3.11px; }
+      #balloon-wrapper { perspective: 800px; }
       #PALLONCINO { transform-origin: 539.13px 592.46px; }
     </style>
     <clipPath id="qr-clip">
@@ -108,16 +109,12 @@ document.addEventListener('DOMContentLoaded', () => {
     targets: wrapper,
     translateY: { value: [1500, 0], easing: 'easeOutSine', duration: 3000 },
     complete: () => {
-      // 2. Rotazione su se stesso
+      // 2. Rotazione su asse Y
       anime({
         targets: balloon,
-        rotate: { value: [0, 360], easing: 'easeInOutSine', duration: 1500 },
+        rotateY: { value: [0, 360], easing: 'easeInOutSine', duration: 1500 },
         complete: () => {
-          // 3. Cross-fade verso QR code
-          anime({
-            targets: balloon,
-            opacity: { value: [1, 0], easing: 'linear', duration: 600 },
-          });
+          // 3. QR code appare sopra il palloncino
           anime({
             targets: qrcode,
             opacity: { value: [0, 1], easing: 'linear', duration: 600 },
