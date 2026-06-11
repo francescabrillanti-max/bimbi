@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Livello_1" data-name="Livello 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920">
+  <defs>
+    <style>
+      .cls-1 {
+        opacity: .5;
+        stroke: #1a1a1a;
+        stroke-width: 2.63px;
+      }
+
+      .cls-1, .cls-2 {
+        isolation: isolate;
+      }
+
+      .cls-1, .cls-3 {
+        fill: none;
+        stroke-linecap: round;
+        stroke-miterlimit: 3.96;
+      }
+
+      .cls-4 {
+        fill: #e24b4a;
+      }
+
+      .cls-5 {
+        fill: #c43030;
+      }
+
+      .cls-2 {
+        fill: #fff;
+        opacity: .12;
+      }
+
+      .cls-6 {
+        fill: #f2e6d3;
+      }
+
+      .cls-3 {
+        stroke: #c43030;
+        stroke-width: 3.11px;
+      }
+    </style>
+  </defs>
+  <rect class="cls-6" width="1080" height="1920"/>
+  <g id="PALLONCINO">
+    <path class="cls-1" d="M539.13,863.75c-3.32,91.44-7.05,182.89-11.2,274.33-3.32,68.58-6.22,137.17-8.71,205.75"/>
+    <g>
+      <ellipse class="cls-4" cx="539.13" cy="592.46" rx="242.67" ry="267.56"/>
+      <ellipse class="cls-2" cx="476.91" cy="505.34" rx="59.74" ry="44.8"/>
+      <ellipse class="cls-5" cx="539.13" cy="857.53" rx="12.44" ry="8.71"/>
+      <path class="cls-3" d="M531.66,863.75c-3.32,9.96-1.66,16.59,4.98,19.91,6.64-3.32,9.96-9.96,9.96-19.91"/>
+    </g>
+  </g>
+</svg>
