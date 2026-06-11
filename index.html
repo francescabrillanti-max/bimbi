@@ -62,10 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   anime({
     targets: wrapper,
-    translateY: [1500, 0],
-    translateX: [0, -180, 0],
-    easing: 'easeOutCubic',
-    duration: 2200,
+    translateY: { value: [1500, 0], easing: 'easeOutSine', duration: 3000 },
+    translateX: { value: [0, -180, 0], easing: 'easeInOutSine', duration: 3000 },
     complete: () => {
       anime({
         targets: balloon,
