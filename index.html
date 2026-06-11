@@ -84,7 +84,7 @@
 </svg>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+function startAnimation() {
   var tpl = document.querySelector('#balloon-tpl');
   var container = document.querySelector('#balloon-container');
   var poster = document.querySelector('.poster');
@@ -230,11 +230,14 @@ document.addEventListener('DOMContentLoaded', () => {
         easing: 'easeInOutSine',
         complete: function() {
           balloonGroups.forEach(function(b) { explode(b); });
+          setTimeout(showFinalText, 900);
         }
       });
     }
   });
-});
+}
+
+document.addEventListener('DOMContentLoaded', startAnimation);
 
 function explode(balloon) {
   var animEl = balloon.anim;
@@ -277,6 +280,52 @@ function explode(balloon) {
       });
     })();
   }
+}
+
+function showFinalText() {
+  var svg = document.querySelector('.poster');
+  var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  text.setAttribute('x', '540');
+  text.setAttribute('y', '960');
+  text.setAttribute('text-anchor', 'middle');
+  text.setAttribute('dominant-baseline', 'central');
+  text.setAttribute('font-family', 'Arial, sans-serif');
+  text.setAttribute('font-size', '72');
+  text.setAttribute('fill', '#000');
+  text.setAttribute('font-weight', 'bold');
+  text.setAttribute('opacity', '0');
+  text.textContent = 'children have no price.';
+  svg.appendChild(text);
+  var tl = anime.timeline({ easing: 'easeOutQuad' });
+  tl.add({
+    targets: text,
+    opacity: [0, 1],
+    duration: 800
+  })
+  .add({
+    targets: text,
+    opacity: 1,
+    duration: 1000
+  })
+  .add({
+    targets: text,
+    opacity: [1, 0],
+    duration: 800,
+    easing: 'easeInQuad',
+    complete: function() { setTimeout(restartAnimation, 1000); }
+  });
+}
+
+function restartAnimation() {
+  anime.running.forEach(function(a) { a.pause(); });
+  var container = document.querySelector('#balloon-container');
+  container.innerHTML = '';
+  var poster = document.querySelector('.poster');
+  var circles = poster.querySelectorAll('circle');
+  for (var ci = 0; ci < circles.length; ci++) circles[ci].remove();
+  var texts = poster.querySelectorAll('text');
+  for (var ti = 0; ti < texts.length; ti++) texts[ti].remove();
+  startAnimation();
 }
 
 function hexShades(hex, n) {
