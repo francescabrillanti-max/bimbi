@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Palloncino 3D Animato</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
   * { margin: 0; padding: 0; }
   body {
@@ -18,15 +17,15 @@
 </style>
 </head>
 <body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-(function() {
 const W = 1080, H = 1920;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xf2e6d3);
 
-const fov = 40, ch = H / 2;
-const camDist = ch / Math.tan(fov / 2 * Math.PI / 180);
+const fov = 40;
+const camDist = (H / 2) / Math.tan(fov / 2 * Math.PI / 180);
 const camera = new THREE.PerspectiveCamera(fov, W / H, 1, 10000);
 camera.position.set(0, 60, camDist);
 camera.lookAt(0, 60, 0);
@@ -56,26 +55,34 @@ const rim = new THREE.DirectionalLight(0xffffff, 0.3);
 rim.position.set(0, -500, -1000);
 scene.add(rim);
 
-// Fly group (moves up)
 const fly = new THREE.Group();
 scene.add(fly);
-
-// Spin group (rotates around Y)
 const spin = new THREE.Group();
 fly.add(spin);
 
 const CY = 960 - 592.46, RX = 242.67, RY = 267.56;
 
-// --- Balloon sphere ---
+// Texture con gradiente asimmetrico per rendere visibile la rotazione
+const cv = document.createElement('canvas');
+cv.width = 256;
+cv.height = 256;
+const cx = cv.getContext('2d');
+for (let x = 0; x < 256; x++) {
+  const t = x / 256;
+  const red = 0xcc + Math.round(0x16 * (0.5 + 0.5 * Math.sin(t * Math.PI * 2 + 0.3)));
+  cx.fillStyle = 'rgb(' + red + ',' + Math.round(red * 0.36) + ',' + Math.round(red * 0.345) + ')';
+  cx.fillRect(x, 0, 1, 256);
+}
+const tex = new THREE.CanvasTexture(cv);
+
 const sphere = new THREE.Mesh(
   new THREE.SphereGeometry(RX, 48, 48),
-  new THREE.MeshPhongMaterial({ color: 0xe24b4a, specular: 0x442222, shininess: 35, emissive: 0x331111, emissiveIntensity: 0.06 })
+  new THREE.MeshPhongMaterial({ map: tex, specular: 0x442222, shininess: 35, emissive: 0x331111, emissiveIntensity: 0.06 })
 );
 sphere.scale.y = RY / RX;
 sphere.position.set(0, CY, 0);
 spin.add(sphere);
 
-// --- Highlight ---
 const hl = new THREE.Mesh(
   new THREE.SphereGeometry(80, 24, 24),
   new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.35, emissive: 0xffffff, emissiveIntensity: 0.2 })
@@ -83,7 +90,6 @@ const hl = new THREE.Mesh(
 hl.position.set(476.91 - 540, 960 - 505.34 - CY, RX);
 sphere.add(hl);
 
-// --- Knot ---
 const knot = new THREE.Mesh(
   new THREE.SphereGeometry(10, 16, 16),
   new THREE.MeshPhongMaterial({ color: 0xc43030, shininess: 20 })
@@ -91,7 +97,6 @@ const knot = new THREE.Mesh(
 knot.position.set(0, CY - RY - 5, 0);
 spin.add(knot);
 
-// --- String (in spin group - swings with rotation) ---
 const sY1 = 960 - 863.75, sY2 = 960 - 1069.5;
 const string = new THREE.Mesh(
   new THREE.TubeGeometry(
@@ -107,39 +112,9 @@ const string = new THREE.Mesh(
 );
 spin.add(string);
 
-// --- QR texture ---
-const qc = document.createElement('canvas');
-qc.width = 512;
-qc.height = 512;
-const qx = qc.getContext('2d');
-const b = [322.59,333.79,349.97,359.93,374.86,386.06,403.48,413.44,427.13,438.33,454.51,464.46,476.91,488.11,505.53,515.49,529.18,540.38,556.55,566.51,578.95,593.89,605.09,622.51,632.47,646.16,657.36,673.54,683.49,695.94,707.14,724.56,734.51,749.45];
-const ws = ['4.98','9.96','3.73','8.71','4.98','11.2','3.73','7.47','4.98','9.96','3.73','6.22','4.98','11.2','3.73','7.47','4.98','9.96','3.73','6.22','8.71','4.98','11.2','3.73','7.47','4.98','9.96','3.73','6.22','4.98','11.2','3.73','8.71','4.98'];
-const x0 = 322.59, x1 = 749.45, xr = x1 - x0, y0 = 496.63, y1 = 695.75, yr = y1 - y0;
-const pd = 40, zw = 512 - 2 * pd;
-ws.forEach(function(s, i) {
-  qx.fillStyle = 'rgba(255,255,255,1)';
-  qx.fillRect(pd + (b[i] - x0) / xr * zw, pd, Math.max(1, parseFloat(s) / xr * zw), zw);
-});
-qx.fillStyle = 'rgba(255,215,0,0.8)';
-qx.fillRect(pd + (303.92 - x0) / xr * zw, pd + (589.97 - y0) / yr * zw, parseFloat('485.35') / xr * zw, parseFloat('3.73') / xr * zw);
-
-const qrTex = new THREE.CanvasTexture(qc);
-qrTex.transparent = true;
-
-// --- QR CircleGeometry ---
-const qr = new THREE.Mesh(
-  new THREE.CircleGeometry(RX * 0.85, 48),
-  new THREE.MeshBasicMaterial({ map: qrTex, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide })
-);
-qr.position.set(0, 0, RX + 12);
-qr.scale.y = RX / RY;
-sphere.add(qr);
-
-// --- Start position below screen ---
 fly.position.y = -1500;
 
 let phase = 'fly', phaseStart = performance.now();
-const DUR = [3, 2, 1];
 
 function animate(time) {
   requestAnimationFrame(animate);
@@ -147,29 +122,21 @@ function animate(time) {
   const t = (time - phaseStart) / 1000;
 
   if (phase === 'fly') {
-    const p = Math.min(t / DUR[0], 1);
+    const p = Math.min(t / 3, 1);
     fly.position.y = -1500 * (1 - p) * (1 - p) * (1 - p);
     if (p >= 1) { phase = 'spin'; phaseStart = time; }
   }
 
   if (phase === 'spin') {
-    const p = Math.min(t / DUR[1], 1);
+    const p = Math.min(t / 2, 1);
     const e = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
     spin.rotation.y = e * Math.PI * 2;
-    if (p >= 1) { phase = 'reveal'; phaseStart = time; }
-  }
-
-  if (phase === 'reveal') {
-    const p = Math.min(t / DUR[2], 1);
-    const o = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
-    qr.material.opacity = o;
     if (p >= 1) { phase = 'done'; phaseStart = time; }
   }
 
   renderer.render(scene, camera);
 }
 animate();
-})();
 </script>
 </body>
 </html>
