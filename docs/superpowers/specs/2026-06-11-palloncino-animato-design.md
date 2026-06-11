@@ -1,22 +1,22 @@
-# Poster animato — Palloncino
+# Poster animato — Palloncino 3D
 
 ## Obiettivo
-Poster animato 1080×1920 in HTML/JS in cui il palloncino (da `balloon-boy_PALLONCINO.svg`) parte da fuori area e arriva nella posizione finale con traiettoria ad arco, usando Anime.js.
+Poster animato 1080×1920 in HTML/JS in cui il palloncino 3D (da `img/balloon-boy3D_PALLONCINO.svg`) parte da fuori area e arriva nella posizione finale con traiettoria ad arco, usando Anime.js.
 
 ## Asset
-- `img/balloon-boy_PALLONCINO.svg` — SVG base con viewBox 0 0 1080 1920, sfondo beige, solo il palloncino (gruppo `#PALLONCINO`)
+- `img/balloon-boy3D_PALLONCINO.svg` — SVG con viewBox 0 0 1080 1920, sfondo beige, palloncino 3D renderizzato (PNG embedded) nel gruppo `#PALLONCINO`
 
 ## Architettura
-Singolo file `index.html` che:
-1. Include il SVG inline (o via `<object>`/`<img>`)
+Singolo file `index.html` che sostituisce la versione Three.js:
+1. SVG inline (sfondo + palloncino)
 2. Carica Anime.js da CDN
-3. Esegue l'animazione al load
+3. Esegue l'animazione al DOMContentLoaded
 
 ## Animazione
 - **Wrapper:** `<g id="balloon-wrapper">` attorno a `#PALLONCINO`
 - **Stato iniziale:** `translate(0, +1500)` — palloncino sotto l'area visibile
-- **Movimento Y:** 1500 → 0 con easing `easeOutCubic` (durata ~2s)
-- **Movimento X:** parte da 0, va a ~-180 (sinistra) a metà salita, ritorna a 0 in posizione finale — crea un arco naturale
+- **Movimento Y:** 1500 → 0 con easing `easeOutCubic` (durata ~2.2s)
+- **Movimento X:** parte da 0, va a ~-180 (sinistra) a metà salita, ritorna a 0 in posizione finale — arco naturale
 - **Oscillazione finale:** `rotate` lieve (-3° ↔ 3°) con easing `easeInOutSine`, infinita, dopo l'arrivo
 
 ## Traiettoria
