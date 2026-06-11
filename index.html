@@ -94,9 +94,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   var balloonGroups = [];
 
-  for (var i = 0; i < 12; i++) {
-    var x = 40 + Math.random() * 1000;
-    var y = 80 + Math.random() * 1400;
+  var cols = 5;
+  var rows = 5;
+  var marginX = 80;
+  var marginY = 60;
+  var cellW = (1080 - marginX * 2) / cols;
+  var cellH = (1920 - marginY * 2) / rows;
+  for (var i = 0; i < 25; i++) {
+    var col = i % cols;
+    var row = Math.floor(i / cols);
+    var centerX = marginX + col * cellW + Math.random() * cellW;
+    var centerY = marginY + row * cellH + Math.random() * cellH;
+    var x = centerX - 539;
+    var y = centerY - 592;
 
     var group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     group.setAttribute('transform', 'translate(' + x + ', ' + y + ')');
