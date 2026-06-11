@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8">
@@ -73,8 +73,6 @@ grad.addColorStop(1, '#cc302f');
 ctx.fillStyle = grad;
 ctx.fillRect(0, 0, 512, 512);
 const tex = new THREE.CanvasTexture(tc);
-tex.wrapS = THREE.RepeatWrapping;
-tex.wrapT = THREE.RepeatWrapping;
 
 // --- Balloon sphere ---
 const sphere = new THREE.Mesh(
