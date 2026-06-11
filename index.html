@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Palloncino Animato</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+<title>Palloncino 3D Animato</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; }
   body {
     background: #1a1a1a;
     display: flex;
@@ -14,116 +14,180 @@
     align-items: center;
     height: 100vh;
   }
-  .poster {
-    height: 100%;
-    width: auto;
-    display: block;
-  }
+  canvas { display: block; }
 </style>
 </head>
 <body>
 
-<svg class="poster" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <style>
-      .cls-1 { opacity: .5; stroke: #1a1a1a; stroke-width: 2.63px; }
-      .cls-1, .cls-2 { isolation: isolate; }
-      .cls-1, .cls-3 { fill: none; stroke-linecap: round; stroke-miterlimit: 3.96; }
-      .cls-4 { fill: #e24b4a; }
-      .cls-5 { fill: #c43030; }
-      .cls-2 { fill: #fff; opacity: .12; }
-      .cls-6 { fill: #f2e6d3; }
-      .cls-3 { stroke: #c43030; stroke-width: 3.11px; }
-      #balloon-wrapper { perspective: 800px; }
-      #PALLONCINO { transform-origin: 539.13px 592.46px; }
-    </style>
-    <clipPath id="qr-clip">
-      <ellipse cx="546.6" cy="596.19" rx="242.67" ry="267.56"/>
-    </clipPath>
-  </defs>
-  <rect class="cls-6" width="1080" height="1920"/>
-  <g id="balloon-wrapper">
-    <g id="PALLONCINO">
-      <path class="cls-1" d="M539.13,863.75c-3.32,91.44-7.05,182.89-11.2,274.33-3.32,68.58-6.22,137.17-8.71,205.75"/>
-      <g>
-        <ellipse class="cls-4" cx="539.13" cy="592.46" rx="242.67" ry="267.56"/>
-        <ellipse class="cls-2" cx="476.91" cy="505.34" rx="59.74" ry="44.8"/>
-        <ellipse class="cls-5" cx="539.13" cy="857.53" rx="12.44" ry="8.71"/>
-        <path class="cls-3" d="M531.66,863.75c-3.32,9.96-1.66,16.59,4.98,19.91,6.64-3.32,9.96-9.96,9.96-19.91"/>
-      </g>
-    </g>
-    <g id="QRCODE" opacity="0">
-      <g clip-path="url(#qr-clip)">
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="322.59" y="496.63" width="4.98" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="333.79" y="496.63" width="9.96" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="349.97" y="496.63" width="3.73" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="359.93" y="496.63" width="8.71" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="374.86" y="496.63" width="4.98" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="386.06" y="496.63" width="11.2" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="403.48" y="496.63" width="3.73" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="413.44" y="496.63" width="7.47" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="427.13" y="496.63" width="4.98" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="438.33" y="496.63" width="9.96" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="454.51" y="496.63" width="3.73" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="464.46" y="496.63" width="6.22" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="476.91" y="496.63" width="4.98" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="488.11" y="496.63" width="11.2" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="505.53" y="496.63" width="3.73" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="515.49" y="496.63" width="7.47" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="529.18" y="496.63" width="4.98" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="540.38" y="496.63" width="9.96" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="556.55" y="496.63" width="3.73" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="566.51" y="496.63" width="6.22" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="578.95" y="496.63" width="8.71" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="593.89" y="496.63" width="4.98" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="605.09" y="496.63" width="11.2" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="622.51" y="496.63" width="3.73" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="632.47" y="496.63" width="7.47" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="646.16" y="496.63" width="4.98" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="657.36" y="496.63" width="9.96" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="673.54" y="496.63" width="3.73" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="683.49" y="496.63" width="6.22" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="695.94" y="496.63" width="4.98" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="707.14" y="496.63" width="11.2" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="724.56" y="496.63" width="3.73" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="734.51" y="496.63" width="8.71" height="199.12"/>
-        <rect style="fill:#fff;opacity:.9;isolation:isolate" x="749.45" y="496.63" width="4.98" height="199.12"/>
-        <rect style="fill:gold;opacity:.6;isolation:isolate" x="303.92" y="589.97" width="485.35" height="3.73"/>
-      </g>
-    </g>
-  </g>
-</svg>
-
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  if (typeof anime === 'undefined') { return; }
+// Poster dimensions
+const W = 1080;
+const H = 1920;
 
-  const wrapper = document.querySelector('#balloon-wrapper');
-  const balloon = document.querySelector('#PALLONCINO');
-  const qrcode = document.querySelector('#QRCODE');
+// Scene
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf2e6d3);
 
-  wrapper.setAttribute('transform', 'translate(0, 1500)');
+// Camera (wide FOV for less perspective distortion)
+const camera = new THREE.PerspectiveCamera(30, W / H, 1, 5000);
+camera.position.set(0, 0, 2200);
+camera.lookAt(0, -200, 0);
 
-  // 1. Arrivo dal basso
-  anime({
-    targets: wrapper,
-    translateY: { value: [1500, 0], easing: 'easeOutSine', duration: 3000 },
-    complete: () => {
-      // 2. Rotazione su asse Y
-      anime({
-        targets: balloon,
-        rotateY: { value: [0, 360], easing: 'easeInOutSine', duration: 1500 },
-        complete: () => {
-          // 3. QR code appare sopra il palloncino
-          anime({
-            targets: qrcode,
-            opacity: { value: [0, 1], easing: 'linear', duration: 600 },
-          });
-        }
-      });
-    }
-  });
+// Renderer
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+document.body.appendChild(renderer.domElement);
+
+function resize() {
+  const h = window.innerHeight;
+  const w = h * W / H;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize);
+resize();
+
+// Lighting
+scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
+keyLight.position.set(400, 600, 1200);
+scene.add(keyLight);
+const fillLight = new THREE.DirectionalLight(0xffcccc, 0.4);
+fillLight.position.set(-400, 200, 800);
+scene.add(fillLight);
+const rimLight = new THREE.DirectionalLight(0xffffff, 0.3);
+rimLight.position.set(0, -500, -800);
+scene.add(rimLight);
+
+// Balloon group (for fly-in animation)
+const group = new THREE.Group();
+scene.add(group);
+
+// Main balloon sphere (slightly elongated to match SVG's ry > rx)
+const sphereGeo = new THREE.SphereGeometry(252, 48, 48);
+const sphereMat = new THREE.MeshPhongMaterial({
+  color: 0xe24b4a,
+  specular: 0x553333,
+  shininess: 40,
+  emissive: 0x441111,
+  emissiveIntensity: 0.08,
 });
+const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+sphere.scale.y = 267.56 / 242.67;
+sphere.position.set(0, -367, 0);
+group.add(sphere);
+
+// Bottom knot
+const knotGeo = new THREE.SphereGeometry(12, 16, 16);
+const knotMat = new THREE.MeshPhongMaterial({ color: 0xc43030, shininess: 20 });
+const knot = new THREE.Mesh(knotGeo, knotMat);
+knot.position.set(0, -367 - 267, 0);
+group.add(knot);
+
+// String
+const pts = [
+  new THREE.Vector3(0, -367 - 275, 5),
+  new THREE.Vector3(0, -367 - 400, 20),
+  new THREE.Vector3(-3, -367 - 600, 40),
+  new THREE.Vector3(-6, -367 - 800, 60),
+  new THREE.Vector3(-8, -367 - 1000, 80),
+];
+const curve = new THREE.CatmullRomCurve3(pts);
+const tubeGeo = new THREE.TubeGeometry(curve, 32, 1.5, 8, false);
+const tubeMat = new THREE.MeshBasicMaterial({ color: 0x1a1a1a, transparent: true, opacity: 0.5 });
+const tube = new THREE.Mesh(tubeGeo, tubeMat);
+group.add(tube);
+
+// White highlight
+const hlGeo = new THREE.SphereGeometry(55, 24, 24);
+const hlMat = new THREE.MeshPhongMaterial({
+  color: 0xffffff,
+  transparent: true,
+  opacity: 0.12,
+  emissive: 0xffffff,
+  emissiveIntensity: 0.1,
+});
+const highlight = new THREE.Mesh(hlGeo, hlMat);
+highlight.position.set(-62, -367 - 87, 252);
+group.add(highlight);
+
+// QR code texture (canvas)
+const qrCanvas = document.createElement('canvas');
+qrCanvas.width = 400;
+qrCanvas.height = 400;
+const qrCtx = qrCanvas.getContext('2d');
+qrCtx.fillStyle = '#f2e6d3';
+qrCtx.fillRect(0, 0, 400, 400);
+
+const bars = [322.59, 333.79, 349.97, 359.93, 374.86, 386.06, 403.48, 413.44, 427.13, 438.33, 454.51, 464.46, 476.91, 488.11, 505.53, 515.49, 529.18, 540.38, 556.55, 566.51, 578.95, 593.89, 605.09, 622.51, 632.47, 646.16, 657.36, 673.54, 683.49, 695.94, 707.14, 724.56, 734.51, 749.45];
+const scale_f = 400 / 790;
+const yOff = (496.63 - 300) * scale_f;
+const hBar = 199.12 * scale_f;
+qrCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+bars.forEach(x => qrCtx.fillRect((x - 300) * scale_f, yOff, Math.max(1, 4.98 * scale_f), hBar));
+qrCtx.fillStyle = 'rgba(255, 215, 0, 0.6)';
+qrCtx.fillRect((303.92 - 300) * scale_f, (589.97 - 300) * scale_f, 485.35 * scale_f, 3.73 * scale_f);
+
+const qrTexture = new THREE.CanvasTexture(qrCanvas);
+qrTexture.transparent = true;
+
+// QR plane (positioned just in front of the balloon)
+const qrGeo = new THREE.PlaneGeometry(400, 400);
+const qrMat = new THREE.MeshBasicMaterial({
+  map: qrTexture,
+  transparent: true,
+  opacity: 0,
+  depthWrite: false,
+  side: THREE.DoubleSide,
+});
+const qrPlane = new THREE.Mesh(qrGeo, qrMat);
+qrPlane.position.set(0, -367, 260);
+group.add(qrPlane);
+
+// Start position: below poster
+group.position.y = 1500;
+
+// Animation timeline
+let phase = 'fly'; // fly | spin | qr
+let phaseStart = performance.now();
+const flyDuration = 3000;
+const spinDuration = 1500;
+const qrDuration = 600;
+
+function animate(time) {
+  requestAnimationFrame(animate);
+  const elapsed = (time - phaseStart) / 1000;
+
+  if (phase === 'fly') {
+    const t = Math.min(elapsed / 3, 1);
+    const ease = t < 1 ? 1 - Math.pow(1 - t, 3) : 1; // easeOutCubic
+    group.position.y = 1500 * (1 - ease);
+    if (t >= 1) { phase = 'spin'; phaseStart = time; }
+  }
+
+  if (phase === 'spin') {
+    const t = Math.min(elapsed / 1.5, 1);
+    const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; // easeInOutSine
+    sphere.rotation.y = ease * Math.PI * 2;
+    highlight.rotation.y = ease * Math.PI * 2;
+    if (t >= 1) { phase = 'qr'; phaseStart = time; }
+  }
+
+  if (phase === 'qr') {
+    const t = Math.min(elapsed / 0.6, 1);
+    qrMat.opacity = t;
+  }
+
+  // Subtle idle float
+  if (phase !== 'fly') {
+    group.position.y += Math.sin(time * 0.001) * 0.05;
+  }
+
+  renderer.render(scene, camera);
+}
+animate();
 </script>
 </body>
 </html>
