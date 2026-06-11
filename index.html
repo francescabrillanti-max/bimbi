@@ -58,11 +58,9 @@ scene.add(rim);
 const group = new THREE.Group();
 scene.add(group);
 
-const rot = new THREE.Group();
-group.add(rot);
-
 const CY = 960 - 592.46, RX = 242.67, RY = 267.56;
 
+// --- Balloon texture with QR code ---
 const tc = document.createElement('canvas');
 tc.width = 1024;
 tc.height = 1024;
@@ -74,16 +72,13 @@ function redraw() {
   if (qa > 0.01) {
     const b = [322.59,333.79,349.97,359.93,374.86,386.06,403.48,413.44,427.13,438.33,454.51,464.46,476.91,488.11,505.53,515.49,529.18,540.38,556.55,566.51,578.95,593.89,605.09,622.51,632.47,646.16,657.36,673.54,683.49,695.94,707.14,724.56,734.51,749.45];
     const w = ['4.98','9.96','3.73','8.71','4.98','11.2','3.73','7.47','4.98','9.96','3.73','6.22','4.98','11.2','3.73','7.47','4.98','9.96','3.73','6.22','8.71','4.98','11.2','3.73','7.47','4.98','9.96','3.73','6.22','4.98','11.2','3.73','8.71','4.98'];
-    const x0 = 322.59, x1 = 749.45, xr = x1 - x0, y0 = 496.63, y1 = 695.75, yr = y1 - y0;
-    const tx0 = 380, tx1 = 644, tw = tx1 - tx0, ty0 = 380, ty1 = 644;
-    function qx(x) { return tx0 + (x - x0) / xr * tw; }
-    function qy(y) { return ty0 + (y - y0) / yr * tw; }
-    function qs(s) { return parseFloat(s) / xr * tw; }
+    const x0 = 322.59, x1 = 749.45, xr = x1 - x0, y0 = 496.63, y1 = 695.75;
+    const tx0 = 380, tx1 = 644, tw = tx1 - tx0, ty0 = 380;
     const a = (qa * 0.9).toFixed(3);
     cx.fillStyle = 'rgba(255,255,255,' + a + ')';
-    w.forEach(function(s, i) { cx.fillRect(qx(b[i]), qy(y0), Math.max(1, qs(s)), tw); });
+    w.forEach(function(s, i) { cx.fillRect(tx0 + (b[i] - x0) / xr * tw, ty0 + (y0 - y0), Math.max(1, parseFloat(s) / xr * tw), tw); });
     cx.fillStyle = 'rgba(255,215,0,' + (qa * 0.6).toFixed(3) + ')';
-    cx.fillRect(qx(303.92), qy(589.97), qs('485.35'), qs('3.73'));
+    cx.fillRect(tx0 + (303.92 - x0) / xr * tw, ty0 + (589.97 - y0), parseFloat('485.35') / xr * tw, parseFloat('3.73') / xr * tw);
   }
 }
 redraw();
@@ -95,14 +90,15 @@ const sphere = new THREE.Mesh(
 );
 sphere.scale.y = RY / RX;
 sphere.position.set(0, CY, 0);
-rot.add(sphere);
+group.add(sphere);
 
+// Highlight as CHILD of sphere so it orbits with rotation
 const hl = new THREE.Mesh(
-  new THREE.SphereGeometry(55, 24, 24),
-  new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.18, emissive: 0xffffff, emissiveIntensity: 0.1 })
+  new THREE.SphereGeometry(70, 24, 24),
+  new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.30, emissive: 0xffffff, emissiveIntensity: 0.15 })
 );
-hl.position.set(476.91 - 540, 960 - 505.34, RX);
-rot.add(hl);
+hl.position.set(476.91 - 540, 960 - 505.34 - CY, RX);
+sphere.add(hl);
 
 const knot = new THREE.Mesh(
   new THREE.SphereGeometry(10, 16, 16),
@@ -144,7 +140,7 @@ function animate(time) {
   if (phase === 'spin') {
     const p = Math.min(t / 2.0, 1);
     const e = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
-    rot.rotation.y = e * Math.PI * 2;
+    sphere.rotation.y = e * Math.PI * 2;
     if (p >= 1) { phase = 'reveal'; phaseStart = time; }
   }
 
