@@ -44,15 +44,15 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// Lights: key from upper-right (matches reference PNG highlight)
-scene.add(new THREE.AmbientLight(0xffffff, 0.25));
+// Lights
+scene.add(new THREE.AmbientLight(0xffffff, 0.3));
 const key = new THREE.DirectionalLight(0xffffff, 1.0);
 key.position.set(600, 800, 1200);
 scene.add(key);
 const fill = new THREE.DirectionalLight(0xffbbaa, 0.4);
 fill.position.set(-400, 300, 800);
 scene.add(fill);
-const rim = new THREE.DirectionalLight(0xffffff, 0.25);
+const rim = new THREE.DirectionalLight(0xffffff, 0.3);
 rim.position.set(0, -600, -800);
 scene.add(rim);
 
@@ -63,49 +63,17 @@ fly.add(spin);
 
 const CY = 960 - 592.46, RX = 242.67, RY = 267.56;
 
-// --- Texture fedele al PNG di riferimento ---
+// Texture: solo rosso con cuciture sottili
 const cv = document.createElement('canvas');
 cv.width = 256;
 cv.height = 256;
 const cx = cv.getContext('2d');
-
-// Gradiente verticale: chiaro sopra, scuro sotto (come nel PNG)
-for (let y = 0; y < 256; y++) {
-  const t = y / 256;
-  const shade = Math.round(255 - t * 170); // 255 in alto, 85 in basso
-  const r = Math.min(255, Math.round(shade * 0.95));
-  const g = Math.round(shade * 0.35);
-  const b = Math.round(shade * 0.34);
-  for (let x = 0; x < 256; x++) {
-    cx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
-    cx.fillRect(x, y, 1, 1);
-  }
-}
-
-// Highlight (macchia chiara) in alto a destra, come nel PNG
-const hx = Math.round(256 * 0.68), hy = Math.round(256 * 0.18);
-for (let r = 50; r > 0; r -= 4) {
-  const a = Math.round(180 - r * 3);
-  if (a < 0) continue;
-  cx.fillStyle = 'rgba(255,255,255,' + (a / 255).toFixed(3) + ')';
-  cx.beginPath();
-  cx.arc(hx, hy, r, 0, Math.PI * 2);
-  cx.fill();
-}
-
-// Sottile linea verticale (cucitura) per riferimento rotazione
-cx.strokeStyle = 'rgba(0,0,0,0.08)';
+cx.fillStyle = '#e24b4a';
+cx.fillRect(0, 0, 256, 256);
+cx.strokeStyle = 'rgba(0,0,0,0.06)';
 cx.lineWidth = 2;
-cx.beginPath();
-cx.moveTo(40, 0);
-cx.lineTo(40, 256);
-cx.stroke();
-
-// Altra cucitura sul lato opposto
-cx.beginPath();
-cx.moveTo(210, 0);
-cx.lineTo(210, 256);
-cx.stroke();
+cx.beginPath(); cx.moveTo(30, 0); cx.lineTo(30, 256); cx.stroke();
+cx.beginPath(); cx.moveTo(220, 0); cx.lineTo(220, 256); cx.stroke();
 
 const tex = new THREE.CanvasTexture(cv);
 
@@ -117,12 +85,20 @@ sphere.scale.y = RY / RX;
 sphere.position.set(0, CY, 0);
 spin.add(sphere);
 
-// Highlight come sfera 3D (si muove con la rotazione)
+// Highlight sulla superficie dell'ellissoide
+// Posizione 3D sulla superficie: dal PNG (x=86, y=-172) in proiezione 2D
+// Sull'ellissoide: z = sqrt(RX^2 - x^2 - (y*RX/RY)^2)
+// hlz = sqrt(242.67^2 - 86^2 - (172*242.67/267.56)^2) = 145.9
+// Contro-scala Y: hly = -172 / (RY/RX)
 const hl = new THREE.Mesh(
-  new THREE.SphereGeometry(70, 24, 24),
-  new THREE.MeshPhongMaterial({ color: 0xffd4d4, transparent: true, opacity: 0.25, emissive: 0xffaaaa, emissiveIntensity: 0.08 })
+  new THREE.SphereGeometry(45, 24, 24),
+  new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.3, emissive: 0xffffff, emissiveIntensity: 0.1 })
 );
-hl.position.set(86.5, -172.5, RX);
+const hlx = 86;
+const hly = -172 * RX / RY;
+const yw = hly * RY / RX;
+const hlz = Math.sqrt(RX * RX - hlx * hlx - yw * yw * RX * RX / (RY * RY));
+hl.position.set(hlx, hly, hlz);
 sphere.add(hl);
 
 const knot = new THREE.Mesh(
